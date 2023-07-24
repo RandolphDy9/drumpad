@@ -1,5 +1,5 @@
 function App() {
-  const [text, setText] = React.useState('');
+  const [displayData, setDisplayData] = React.useState('');
 
   const drumClips = [
     {
@@ -58,32 +58,57 @@ function App() {
     },
   ];
 
-  React.useEffect(() => {
+  const displayStr = (str) => {
+    setDisplayData(prev => prev + str);
+    console.log(str);
+  }
 
-  }, []);
 
   return (
     <div id="drum-container">
       <div id="drum-machine" className="mx-auto text-center">
         <h4 id="title">Drum Machine</h4>
         <h6 id="subTitle">By Randolph Dy</h6>
-        <div id="display">
-
-        </div>
         <div id="drumPadContainer" className="row">
-          <div className="drum-pad col-4" id="Q">Q
-            <audio src="" className="clip"></audio>
-          </div>
-          <div className="drum-pad col-4" id="W">W</div>
-          <div className="drum-pad col-4" id="E">E</div>
-          <div className="drum-pad col-4" id="A">A</div>
-          <div className="drum-pad col-4" id="S">S</div>
-          <div className="drum-pad col-4" id="D">D</div>
-          <div className="drum-pad col-4" id="Z">Z</div>
-          <div className="drum-pad col-4" id="X">X</div>
-          <div className="drum-pad col-4" id="C">C</div>
+          { drumClips.map(clip => {
+            return <Pad key={clip.id} clip={clip} onClick={() => displayStr(clip.keyTrigger)} />
+          }) }
+        </div>
+        <div id="display" className="my-4">
+          { displayData }
         </div>
       </div>
+    </div>
+  )
+}
+
+const Pad = ({ clip, onClick }) => {
+  // const [active, setActive] = React.useState(false);
+
+  React.useEffect(() => {
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    }
+  }, []);
+
+  const handleKeyPress = (e) => {
+    if (e.keyCode === clip.keyCode) {
+      playSound();
+    }
+  }
+
+  const playSound = () => {
+    const audioTag = document.getElementById(clip.keyTrigger);
+    audioTag.currentTime = 0;
+    audioTag.play();
+    onClick();
+  };
+
+  return (
+    <div onClick={playSound} className="drum-pad col-4">
+      <audio className="clip" id={clip.keyTrigger} src={clip.url} />
+      { clip.keyTrigger }
     </div>
   )
 }
